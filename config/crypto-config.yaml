@@ -1,0 +1,40 @@
+OrdererOrgs:
+  - Name: Orderer
+    Domain: supply.com
+    Specs:
+      - Hostname: orderer
+        SANS:
+         - localhost
+PeerOrgs:
+  - Name: GylCoreOrg1MSP
+    Domain: core.supply.com
+    Template:
+      Count: 1
+      SANS:
+        - localhost
+    Users:
+      Count: 1
+  - Name: GylFOrg1MSP
+    Domain: f1.supply.com
+    Template:
+      Count: 1
+      SANS:
+        - localhost
+    Users:
+      Count: 1
+  - Name: GylSOrg1MSP
+    Domain: s1.supply.com
+    Template:
+      Count: 1
+      SANS:
+        - localhost
+    Users:
+      Count: 1
+  - Name: GylSOrg2MSP
+    Domain: s2.supply.com
+    Template:
+      Count: 1
+      SANS:
+        - localhost
+    Users:
+      Count: 1

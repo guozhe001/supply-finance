@@ -1,0 +1,348 @@
+Organizations:
+
+    # SampleOrg defines an MSP using the sampleconfig. It should never be used
+    # in production but may be used as a template for other definitions.
+    - &SampleOrg
+        # Name is the key by which this org will be referenced in channel
+        # configuration transactions.
+        # Name can include alphanumeric characters as well as dots and dashes.
+        Name: SampleOrg
+
+        # SkipAsForeign can be set to true for org definitions which are to be
+        # inherited from the orderer system channel during channel creation.  This
+        # is especially useful when an admin of a single org without access to the
+        # MSP directories of the other orgs wishes to create a channel.  Note
+        # this property must always be set to false for orgs included in block
+        # creation.
+        SkipAsForeign: false
+
+        # ID is the key by which this org's MSP definition will be referenced.
+        # ID can include alphanumeric characters as well as dots and dashes.
+        ID: SampleOrg
+
+        # MSPDir is the filesystem path which contains the MSP configuration.
+        MSPDir: msp
+
+        # Policies defines the set of policies at this level of the config tree
+        # For organization policies, their canonical path is usually
+        #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
+        Policies: &SampleOrgPolicies
+            Readers:
+                Type: Signature
+                Rule: "OR('SampleOrg.member')"
+                # If your MSP is configured with the new NodeOUs, you might
+                # want to use a more specific rule like the following:
+                # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('SampleOrg.member')"
+                # If your MSP is configured with the new NodeOUs, you might
+                # want to use a more specific rule like the following:
+                # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('SampleOrg.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('SampleOrg.member')"
+
+        # AnchorPeers defines the location of peers which can be used for
+        # cross-org gossip communication. Note, this value is only encoded in
+        # the genesis block in the Application section context.
+        AnchorPeers:
+            - Host: 127.0.0.1
+              Port: 7051
+
+    - &OrdererOrg
+
+        Name: OrdererOrg
+        ID: OrdererMSP
+        MSPDir: ../organizations/ordererOrganizations/supply.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+                # If your MSP is configured with the new NodeOUs, you might
+                # want to use a more specific rule like the following:
+                # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('OrdererMSP.admin')"
+
+        OrdererEndpoints:
+            - orderer.supply.com:8050
+
+    - &GylCoreOrg1MSP
+
+        Name: GylCoreOrg1MSP
+        ID: GylCoreOrg1MSP
+        MSPDir: ../organizations/peerOrganizations/core.supply.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('GylCoreOrg1MSP.member')"
+                # If your MSP is configured with the new NodeOUs, you might
+                # want to use a more specific rule like the following:
+                # Rule: "OR('GylOrg1MSP.admin', 'GylOrg1MSP.peer', 'GylOrg1MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('GylCoreOrg1MSP.member')"
+                # If your MSP is configured with the new NodeOUs, you might
+                # want to use a more specific rule like the following:
+                # Rule: "OR('GylOrg1MSP.admin', 'GylOrg1MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('GylCoreOrg1MSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('GylCoreOrg1MSP.member')"
+        AnchorPeers:
+            - Host: peer0.core.supply.com
+              Port: 8051
+
+    - &GylFOrg1MSP
+        Name: GylFOrg1MSP
+        ID: GylFOrg1MSP
+        MSPDir: ../organizations/peerOrganizations/f1.supply.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('GylFOrg1MSP.member')"
+                # If your MSP is configured with the new NodeOUs, you might
+                # want to use a more specific rule like the following:
+                # Rule: "OR('GylOrg2MSP.admin', 'GylOrg2MSP.peer', 'GylOrg2MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('GylFOrg1MSP.member')"
+                # If your MSP is configured with the new NodeOUs, you might
+                # want to use a more specific rule like the following:
+                # Rule: "OR('GylOrg2MSP.admin', 'GylOrg2MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('GylFOrg1MSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('GylFOrg1MSP.member')"
+        AnchorPeers:
+            - Host: peer0.f1.supply.com
+              Port: 8053
+
+    - &GylSOrg1MSP
+
+        Name: GylSOrg1MSP
+        ID: GylSOrg1MSP
+        MSPDir: ../organizations/peerOrganizations/s1.supply.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('GylSOrg1MSP.member')"
+                # If your MSP is configured with the new NodeOUs, you might
+                # want to use a more specific rule like the following:
+                # Rule: "OR('GylOrg2MSP.admin', 'GylOrg2MSP.peer', 'GylOrg2MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('GylSOrg1MSP.member')"
+                # If your MSP is configured with the new NodeOUs, you might
+                # want to use a more specific rule like the following:
+                # Rule: "OR('GylOrg2MSP.admin', 'GylOrg2MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('GylSOrg1MSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('GylSOrg1MSP.member')"
+        AnchorPeers:
+            - Host: peer0.s1.supply.com
+              Port: 8055
+
+    - &GylSOrg2MSP
+
+        Name: GylSOrg2MSP
+        ID: GylSOrg2MSP
+        MSPDir: ../organizations/peerOrganizations/s2.supply.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('GylSOrg2MSP.member')"
+                # If your MSP is configured with the new NodeOUs, you might
+                # want to use a more specific rule like the following:
+                # Rule: "OR('GylOrg2MSP.admin', 'GylOrg2MSP.peer', 'GylOrg2MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('GylSOrg2MSP.member')"
+                # If your MSP is configured with the new NodeOUs, you might
+                # want to use a more specific rule like the following:
+                # Rule: "OR('GylOrg2MSP.admin', 'GylOrg2MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('GylSOrg2MSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('GylSOrg2MSP.member')"
+        AnchorPeers:
+            - Host: peer0.s2.supply.com
+              Port: 8151
+
+Capabilities:
+    # Channel capabilities apply to both the orderers and the peers and must be
+    # supported by both.
+    # Set the value of the capability to true to require it.
+    Channel: &ChannelCapabilities
+        # V1.3 for Channel is a catchall flag for behavior which has been
+        # determined to be desired for all orderers and peers running at the v1.3.x
+        # level, but which would be incompatible with orderers and peers from
+        # prior releases.
+        # Prior to enabling V1.3 channel capabilities, ensure that all
+        # orderers and peers on a channel are at v1.3.0 or later.
+        V2_0: true
+
+    # Orderer capabilities apply only to the orderers, and may be safely
+    # used with prior release peers.
+    # Set the value of the capability to true to require it.
+    Orderer: &OrdererCapabilities
+        # V1.1 for Orderer is a catchall flag for behavior which has been
+        # determined to be desired for all orderers running at the v1.1.x
+        # level, but which would be incompatible with orderers from prior releases.
+        # Prior to enabling V1.1 orderer capabilities, ensure that all
+        # orderers on a channel are at v1.1.0 or later.
+        V2_0: true
+
+    # Application capabilities apply only to the peer network, and may be safely
+    # used with prior release orderers.
+    # Set the value of the capability to true to require it.
+    Application: &ApplicationCapabilities
+        # V2.0 for Application enables the new non-backwards compatible
+        # features and fixes of fabric v2.0.
+        V2_0: true
+
+Channel: &ChannelDefaults
+    # Policies defines the set of policies at this level of the config tree
+    # For Channel policies, their canonical path is
+    #   /Channel/<PolicyName>
+    Policies:
+        # Who may invoke the 'Deliver' API
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        # Who may invoke the 'Broadcast' API
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        # By default, who may modify elements at this config level
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+
+    # Capabilities describes the channel level capabilities, see the
+    # dedicated Capabilities section elsewhere in this file for a full
+    # description
+    Capabilities:
+        <<: *ChannelCapabilities
+
+Orderer: &OrdererDefaults
+
+    OrdererType: etcdraft
+
+    Addresses:
+        - orderer.supply.com:8050
+
+    BatchTimeout: 2s
+
+    BatchSize:
+
+        MaxMessageCount: 10
+        AbsoluteMaxBytes: 98 MB
+        PreferredMaxBytes: 512 KB
+
+    EtcdRaft:
+        Consenters:
+            - Host: orderer.supply.com
+              Port: 8050
+              ClientTLSCert: ../organizations/ordererOrganizations/supply.com/orderers/orderer.supply.com/tls/server.crt
+              ServerTLSCert: ../organizations/ordererOrganizations/supply.com/orderers/orderer.supply.com/tls/server.crt
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+    Capabilities:
+        <<: *OrdererCapabilities
+
+Application: &ApplicationDefaults
+
+    # Organizations lists the orgs participating on the application side of the
+    # network.
+    Organizations:
+
+    # Policies defines the set of policies at this level of the config tree
+    # For Application policies, their canonical path is
+    #   /Channel/Application/<PolicyName>
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        LifecycleEndorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+        Endorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+
+    # Capabilities describes the application level capabilities, see the
+    # dedicated Capabilities section elsewhere in this file for a full
+    # description
+    Capabilities:
+        <<: *ApplicationCapabilities
+        
+Profiles:
+
+    TestOrgsOrdererGenesis:
+        <<: *ChannelDefaults
+        Capabilities:
+            <<: *ChannelCapabilities
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+            Capabilities:
+                <<: *OrdererCapabilities
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                    - *GylCoreOrg1MSP
+                    - *GylFOrg1MSP
+                    - *GylSOrg1MSP
+                    - *GylSOrg2MSP
+
+    AllPlayChannel:
+        Consortium: SampleConsortium
+        <<: *ChannelDefaults
+        Capabilities:
+            <<: *ChannelCapabilities
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *GylCoreOrg1MSP
+                - *GylFOrg1MSP
+                - *GylSOrg1MSP
+                - *GylSOrg2MSP
+            Capabilities:
+                <<: *ApplicationCapabilities

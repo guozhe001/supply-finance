@@ -1,0 +1,206 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  orderer.supply.com:
+  peer0.core.supply.com:
+  peer0.f1.supply.com:
+  peer0.s1.supply.com:
+  peer0.s2.supply.com:
+
+networks:
+  test:
+
+services:
+
+  orderer.supply.com:
+    container_name: orderer.supply.com
+    image: hyperledger/fabric-orderer:2.3.0
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=8050
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_BOOTSTRAPFILE=/etc/hyperledger/orderer/orderer.genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/fabric/msp
+      - ORDERER_GENERAL_LEDGERTYPE=file
+      - ORDERER_OPERATIONS_LISTENADDRESS=0.0.0.0:8443
+      # enabled TLS
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/etc/hyperledger/fabric/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/etc/hyperledger/fabric/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/etc/hyperledger/fabric/tls/ca.crt]
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/etc/hyperledger/fabric/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/etc/hyperledger/fabric/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/etc/hyperledger/fabric/tls/ca.crt]
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
+    volumes:
+      - ../system-genesis-block/genesis.block:/etc/hyperledger/orderer/orderer.genesis.block
+      - ../organizations/ordererOrganizations/supply.com/orderers/orderer.supply.com/msp:/etc/hyperledger/fabric/msp
+      - ../organizations/ordererOrganizations/supply.com/orderers/orderer.supply.com/tls:/etc/hyperledger/fabric/tls
+      - orderer.supply.com:/var/hyperledger/production/orderer
+      - ../organizations:/tmp
+    ports:
+      - 8050:8050
+    networks:
+      - test
+
+  peer0.core.supply.com:
+    container_name: peer0.core.supply.com
+    image: hyperledger/fabric-peer:2.3.0
+    environment:
+      #Generic peer variables
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=docker_test
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      # Peer specific variabes
+      - CORE_PEER_ID=peer0.core.supply.com
+      - CORE_PEER_ADDRESS=peer0.core.supply.com:8051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.core.supply.com:8052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.core.supply.com:8051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.core.supply.com:8051
+      - CORE_PEER_LOCALMSPID=GylCoreOrg1MSP
+    volumes:
+      - /var/run/:/host/var/run/
+      - ../organizations/peerOrganizations/core.supply.com/peers/peer0.core.supply.com/msp:/etc/hyperledger/fabric/msp
+      - ../organizations/peerOrganizations/core.supply.com/peers/peer0.core.supply.com/tls:/etc/hyperledger/fabric/tls
+      - peer0.core.supply.com:/var/hyperledger/production
+      - ../organizations:/tmp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - 8051:8051
+    networks:
+      - test
+
+  peer0.f1.supply.com:
+    container_name: peer0.f1.supply.com
+    image: hyperledger/fabric-peer:2.3.0
+    environment:
+      #Generic peer variables
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=docker_test
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      # Peer specific variabes
+      - CORE_PEER_ID=peer0.f1.supply.com
+      - CORE_PEER_ADDRESS=peer0.f1.supply.com:8053
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8053
+      - CORE_PEER_CHAINCODEADDRESS=peer0.f1.supply.com:8054
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8054
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.f1.supply.com:8053
+      - CORE_PEER_LOCALMSPID=GylFOrg1MSP
+    volumes:
+      - /var/run/:/host/var/run/
+      - ../organizations/peerOrganizations/f1.supply.com/peers/peer0.f1.supply.com/msp:/etc/hyperledger/fabric/msp
+      - ../organizations/peerOrganizations/f1.supply.com/peers/peer0.f1.supply.com/tls:/etc/hyperledger/fabric/tls
+      - peer0.f1.supply.com:/var/hyperledger/production
+      - ../organizations:/tmp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - 8053:8053
+    networks:
+      - test
+
+  peer0.s1.supply.com:
+    container_name: peer0.s1.supply.com
+    image: hyperledger/fabric-peer:2.3.0
+    environment:
+      #Generic peer variables
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=docker_test
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      # Peer specific variabes
+      - CORE_PEER_ID=peer0.s1.supply.com
+      - CORE_PEER_ADDRESS=peer0.s1.supply.com:8055
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8055
+      - CORE_PEER_CHAINCODEADDRESS=peer0.s1.supply.com:8056
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8056
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.s1.supply.com:8055
+      - CORE_PEER_LOCALMSPID=GylSOrg1MSP
+    volumes:
+      - /var/run/:/host/var/run/
+      - ../organizations/peerOrganizations/s1.supply.com/peers/peer0.s1.supply.com/msp:/etc/hyperledger/fabric/msp
+      - ../organizations/peerOrganizations/s1.supply.com/peers/peer0.s1.supply.com/tls:/etc/hyperledger/fabric/tls
+      - peer0.s1.supply.com:/var/hyperledger/production
+      - ../organizations:/tmp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - 8055:8055
+    networks:
+      - test
+
+  peer0.s2.supply.com:
+    container_name: peer0.s2.supply.com
+    image: hyperledger/fabric-peer:2.3.0
+    environment:
+      #Generic peer variables
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=docker_test
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      # Peer specific variabes
+      - CORE_PEER_ID=peer0.s2.supply.com
+      - CORE_PEER_ADDRESS=peer0.s2.supply.com:8151
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8151
+      - CORE_PEER_CHAINCODEADDRESS=peer0.s2.supply.com:8152
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8152
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.s2.supply.com:8151
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.s2.supply.com:8151
+      - CORE_PEER_LOCALMSPID=GylSOrg2MSP
+    volumes:
+      - /var/run/:/host/var/run/
+      - ../organizations/peerOrganizations/s2.supply.com/peers/peer0.s2.supply.com/msp:/etc/hyperledger/fabric/msp
+      - ../organizations/peerOrganizations/s2.supply.com/peers/peer0.s2.supply.com/tls:/etc/hyperledger/fabric/tls
+      - ../organizations:/tmp
+      - peer0.s2.supply.com:/var/hyperledger/production
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - 8151:8151
+    networks:
+      - test
